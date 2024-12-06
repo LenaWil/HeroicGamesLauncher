@@ -82,7 +82,8 @@ const getIcon = (platform = process.platform) => {
 const contextMenu = (
   mainWindow: BrowserWindow,
   recentGames: RecentGame[],
-  platform = process.platform
+  platform = process.platform,
+  isDock: boolean = false
 ) => {
   const recentsMenu = recentGames.map((game) => {
     return {
@@ -127,7 +128,8 @@ const contextMenu = (
         handleExit()
       },
       label: i18next.t('tray.quit', 'Quit'),
-      accelerator: platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+Q'
+      accelerator: platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+Q',
+      visible: !isDock
     }
   ])
 }

@@ -450,6 +450,13 @@ export async function refresh(): Promise<ExecResult> {
 }
 
 export function getGameInfo(slug: string): GameInfo | undefined {
+  const gameInfo = library.get(slug) || getInstallAndGameInfo(slug)
+  //logError(library.get(appName)?.art_cover)
+  logError("gog")
+  logError(gameInfo?.art_background)
+  logError(gameInfo?.art_cover)
+  logError(gameInfo?.art_icon)
+  logError(gameInfo?.art_square)
   return library.get(slug) || getInstallAndGameInfo(slug)
 }
 

@@ -236,41 +236,52 @@ const showAboutWindow = () => {
   return app.showAboutPanel()
 }
 
+async function showLoadingsIndicator(show: boolean) {
+  return await getMainWindow()?.webContents.insertCSS()
+}
+
 async function handleExit() {
-  const isLocked = existsSync(join(gamesConfigPath, 'lock'))
-  const mainWindow = getMainWindow()
+  try {
+    showLoadingsIndicator(true)
 
-  await gogPresence.deletePresence()
+    const isLocked = existsSync(join(gamesConfigPath, 'lock'))
+    const mainWindow = getMainWindow()
 
-  if (isLocked && mainWindow) {
-    const { response } = await showMessageBox(mainWindow, {
-      buttons: [i18next.t('box.no'), i18next.t('box.yes')],
-      message: i18next.t(
-        'box.quit.message',
-        'There are pending operations, are you sure?'
-      ),
-      title: i18next.t('box.quit.title', 'Exit')
-    })
+    await gogPresence.deletePresence()
 
-    if (response === 0) {
-      return
-    }
+    if (isLocked && mainWindow) {
+      showLoadingsIndicator(false)
+      const { response } = await showMessageBox(mainWindow, {
+        buttons: [i18next.t('box.no'), i18next.t('box.yes')],
+        message: i18next.t(
+          'box.quit.message',
+          'There are pending operations, are you sure?'
+        ),
+        title: i18next.t('box.quit.title', 'Exit')
+      })
+      showLoadingsIndicator(true)
 
-    // This is very hacky and can be removed if gogdl
-    // and legendary handle SIGTERM and SIGKILL
-    const possibleChildren = ['legendary', 'gogdl']
-    possibleChildren.forEach((procName) => {
-      try {
-        killPattern(procName)
-      } catch (error) {
-        logInfo([`Unable to kill ${procName}, ignoring.`, error])
+      if (response === 0) {
+        return
       }
-    })
+      // This is very hacky and can be removed if gogdl
+      // and legendary handle SIGTERM and SIGKILL
+      const possibleChildren = ['legendary', 'gogdl']
+      possibleChildren.forEach((procName) => {
+        try {
+          killPattern(procName)
+        } catch (error) {
+          logInfo([`Unable to kill ${procName}, ignoring.`, error])
+        }
+      })
 
-    // Kill all child processes
-    callAllAbortControllers()
+      // Kill all child processes
+      callAllAbortControllers()
+    }
+    app.exit()
+  } finally {
+    showLoadingsIndicator(false)
   }
-  app.exit()
 }
 
 type ErrorHandlerMessage = {

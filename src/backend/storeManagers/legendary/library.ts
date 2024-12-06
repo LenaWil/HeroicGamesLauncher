@@ -215,6 +215,13 @@ export function getGameInfo(
   if (!library.has(appName) || forceReload) {
     loadFile(appName)
   }
+  const gameInfo = library.get(appName)
+  //logError(library.get(appName)?.art_cover)
+  logError(gameInfo?.art_background)
+  logError(gameInfo?.art_cover)
+  logError(gameInfo?.art_icon)
+  logError(gameInfo?.art_square)
+
   return library.get(appName)
 }
 
